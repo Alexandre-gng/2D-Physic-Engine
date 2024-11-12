@@ -2,9 +2,21 @@
 #define CLOTHES_CLASSCLOTH_H
 
 #include "ClassParticle.h"
+#include "ClassObject.h"
 
 using Eigen::MatrixXd;
-
+/*
+ * Refaire le système de particules proches: les grouper par triangles
+ *      => Min voisin = 2, Max voisin = 6;
+ *      => Deux triangles = un carré.
+ * Contraintes:
+ *      => Distances
+ *      => Strecthing
+ *      => Bending
+ *      => Self_collision
+ *      => With rigid body
+ *      => 
+ */
 class Cloth {
 public:
     int         width;

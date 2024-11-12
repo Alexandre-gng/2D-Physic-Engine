@@ -69,6 +69,8 @@ void Cloth::JakobsenMethod() {
     return;
 }
 
+
+
 // PBD distance constraint solver
 void Cloth::PBD_distance_constraint() {
     for (int i = 0; i < this->height; i++) {
