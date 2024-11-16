@@ -1,12 +1,12 @@
-//
-// Created by alexa on 11/11/2024.
-//
-
-#ifndef CLOTHES_CLASSDISTANCECONTRAINT_H
-#define CLOTHES_CLASSDISTANCECONTRAINT_H
+#pragma once
 
 #include "ClassConstraint.h"
-#include "ClassParticle.h"
+
+/*
+ * TO DO:
+ *      - le renommer StretchingConstraint
+ *
+ */
 
 class DistanceConstraint : public Constraint {
     int distance;
@@ -42,5 +42,3 @@ class DistanceConstraint : public Constraint {
     }
 };
 
-
-#endif //CLOTHES_CLASSDISTANCECONTRAINT_H

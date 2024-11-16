@@ -1,5 +1,6 @@
 #include "ClassCloth.h"
 
+/*
 void Cloth::updateAllAccelerations() {
     for (int i = 0; i < this->height; i++) {
         for (int j = 0; j < this->width; j++) {
@@ -11,7 +12,8 @@ void Cloth::updateAllAccelerations() {
         return;
     }
 }
-
+*/
+/*
 // Verlet integration, good but not polyvalent
 void Cloth::simulateVerlet(float dt) {
     for (int i = 0; i < this->height; i++) {
@@ -27,6 +29,7 @@ void Cloth::simulateVerlet(float dt) {
     }
     return;
 }
+ */
 
 // Classic Jakobsen method
 void Cloth::JakobsenMethod() {
@@ -42,9 +45,9 @@ void Cloth::JakobsenMethod() {
 
                         sf::Vector2f direction = delta_pos / current_distance;
 
-                        float deltaDistance = current_distance - this->distance;
+                        float deltaDistance = current_distance - this->default_lenght;
 
-                        if ((deltaDistance > 0) && (deltaDistance >= this->distance*0.75)) {
+                        if ((deltaDistance > 0) && (deltaDistance >= this->default_lenght*0.75)) {
                             ptrP->cutTwoParticles(nearestP);
                             continue;
                         }
@@ -81,16 +84,14 @@ void Cloth::PBD_distance_constraint() {
                     if (p2 == nullptr) {
                         continue;
                     }
-                    float w1 = 1/p2->mass;
-                    float w2 = 1/p1->mass;
 
                     sf::Vector2f delta_pos = p2->pos - p1->pos;
                     float current_distance = sqrt(delta_pos.x * delta_pos.x + delta_pos.y * delta_pos.y);
 
-                    sf::Vector2f deltaP1 = (-(w1) * (current_distance - this->distance) / ((w1 + w2) * current_distance)) * delta_pos;
-                    sf::Vector2f deltaP2 = ((w2) * (current_distance - this->distance) / ((w1 + w2) * current_distance)) * delta_pos;
+                    sf::Vector2f deltaP1 = (-(p2->inverse_mass) * (current_distance - this->default_lenght) / ((p2->inverse_mass + p1->inverse_mass) * current_distance)) * delta_pos;
+                    sf::Vector2f deltaP2 = ((p1->inverse_mass) * (current_distance - this->default_lenght) / ((p2->inverse_mass + p1->inverse_mass) * current_distance)) * delta_pos;
 
-                    if ((current_distance > 0) && (current_distance >= this->distance*1.25f)) {
+                    if ((current_distance > 0) && (current_distance >= this->default_lenght*1.25f)) {
                         p1->cutTwoParticles(p2);
                         continue;
                     }

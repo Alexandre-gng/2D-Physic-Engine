@@ -20,6 +20,7 @@ add_executable(Clothes
         ClassConstraint.h
         ClassDistanceContraint.h
         ClassTriangle.h
+        ClassJoint.h
 )
 
 target_link_libraries(Clothes sfml-graphics)

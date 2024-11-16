@@ -1,9 +1,4 @@
-//
-// Created by alexa on 10/11/2024.
-//
-
-#ifndef CLOTHES_CLASSRECTANCLE_H
-#define CLOTHES_CLASSRECTANCLE_H
+#pragma once
 
 #include "ClassObject.h"
 
@@ -25,5 +20,3 @@ class Rectangle: public Object {
         return rectangle;
     }
 };
-
-#endif //CLOTHES_CLASSRECTANCLE_H

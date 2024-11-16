@@ -1,10 +1,11 @@
-#ifndef CLOTHES_CLASSOBJECT_H
-#define CLOTHES_CLASSOBJECT_H
+#pragma once
 
-#include "ClassParticle.h"
-#include "ClassConstraint.h"
+#include "ClassJoint.h"
 
 using namespace std;
+
+class Particle;
+class Constraint;
 
 class Object {
 public:
@@ -24,6 +25,3 @@ public:
     // Update the position of the object
     virtual void update() = 0;
 };
-
-
-#endif //CLOTHES_CLASSOBJECT_H

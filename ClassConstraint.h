@@ -1,5 +1,4 @@
-#ifndef CLOTHES_CLASSCONSTRAINT_H
-#define CLOTHES_CLASSCONSTRAINT_H
+#pragma once
 
 #include "ClassParticle.h"
 
@@ -10,4 +9,3 @@ public:
     virtual void apply() = 0;
 };
 
-#endif //CLOTHES_CLASSCONSTRAINT_H

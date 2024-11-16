@@ -5,11 +5,12 @@
 
 using namespace std;
 
-class Physic{
+class Physic {
 public:
     vector<Object*> objects_list;
 
     void solving_constraints();
+    void PBD();
 
     Physic(vector<Object*> vec) {
         objects_list = vec;
