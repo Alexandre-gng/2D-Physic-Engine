@@ -3,18 +3,17 @@
 #include "ClassParticle.h"
 #include "ClassObject.h"
 #include "ClassTriangle.h"
+#include "ClassConstraint.h"
+#include "ClassStretchingConstraint.h"
 
 using Eigen::MatrixXd;
 /*
- * Refaire le système de particules proches: les grouper par triangles
- *      => Min voisin = 2, Max voisin = 6;
- *      => Deux triangles = un carré.
  * Contraintes:
  *      => Strecthing OK
  *      => Bending TO_DO
  *      => Self_collision
  *      => With rigid body
- *      =>
+ *      => External and pressurized forces ?
  *
  * SUPRESSION 1 PARTICLE (ptr_p)
  *      // Pour tous les triangles que constitue ptr_p (Z1):
@@ -55,23 +54,28 @@ using Eigen::MatrixXd;
  *              }
  *          }
  *      }
+ *
+ *      delete la prticle
  */
-class Cloth {
+class Cloth : public Object {
 public:
     int          width;
     int          height;
     int          default_lenght;
     int          mass_particles;
     unsigned int number_p;
-    float        gravity;
-
-    Particle*    TABparticles[40][40];
-    Triangle*    TABtriangles[40][80];
 
     void updateAllAccelerations();
     void simulateVerlet(float);
     void JakobsenMethod();
 
+
+
+    void update() override {
+        cout << "heheh "<< endl;
+    }
+
+    // REFAIRE AVEC L'ALGO YYY
     void suppParticle(sf::Vector2f);
 
     // TO_SUPP AND MOVE YYY
@@ -80,123 +84,13 @@ public:
     // Constraint solver of the collision solid/ Cloth
     void solid_collision_constraint();
 
-    // Damping velocities to reduce energy accumulation
-    // A METTRE DANS PHYSIC_CLASS YYY
-    void damping_velocities(float k_damping) {
-        sf::Vector2f x_center = {0.f, 0.f};
-        sf::Vector2f v_center = {0.f, 0.f};
-        float total_mass = 0.f;
 
-        // Center of mass and velocity
-        for (int i = 0; i < this->height; i++) {
-            for (int j = 0; j < this->width; j++) {
-                Particle *ptrP = this->TABparticles[i][j];
-                if (ptrP == nullptr) {
-                    continue;
-                }
-                total_mass += ptrP->mass;
-                x_center += ptrP->pos * ptrP->mass;
-                v_center += ptrP->velocity * ptrP->mass;
-            }
-        }
-        x_center = x_center * (1 / total_mass);
-        v_center = v_center * (1 / total_mass);
+    Cloth(int x, int y, int w, int h, float d,int m_p, float frict)
+    : width(w), height(h), default_lenght(d), mass_particles(m_p), number_p(w*h), Object(CLOTH) {
 
-        // Angular movement
-        float L = 0.f;
-        // Inertia tensor
-        Eigen::Matrix2f I;
-        I << 0, 0,
-                0, 0;
-        for (int i = 0; i < this->height; i++) {
-            for (int j = 0; j < this->width; j++) {
-                Particle *ptrP = this->TABparticles[i][j];
-                if (ptrP == nullptr) {
-                    continue;
-                }
-                float r_x = ptrP->pos.x - x_center.x;
-                float r_y = ptrP->pos.y - x_center.y;
-                //float r_z = ptrP->pos.z - x_center.z;
+        // Adding the Stretching constraint
+        constraints_list.push_back(std::make_shared<StretchingConstraint>(default_lenght, this));
 
-                // r~ * r~T:
-                Eigen::Matrix2f r_result;
-                r_result << r_x*r_x, 0,
-                        0,  r_x*r_x;
-                I = I + r_result * ptrP->mass;
-
-                // cross product calcul and angular moment
-                float r_x_v = ((r_x * ptrP->velocity.y) - (r_y - ptrP->velocity.x));
-                L += r_x_v * ptrP->mass;
-            }
-        }
-        Eigen::Matrix2f I_inverse;
-        I_inverse = I.inverse();
-
-        // angluar velocity
-        Eigen::Matrix2f w;
-        w = I_inverse * L;
-
-        Eigen::Vector2f delta_velocity;
-        for (int i = 0; i < this->height; i++) {
-            for (int j = 0; j < this->width; j++) {
-                Particle *ptr_P = this->TABparticles[i][j];
-                if (ptr_P == nullptr || j == 0) {
-                    continue;
-                }
-                Eigen::Vector2f r(ptr_P->pos.x - x_center.x, ptr_P->pos.y - x_center.y);
-                Eigen::Vector2f v_center_eigen(v_center.x, v_center.y);
-                Eigen::Vector2f velocity_eigen(ptr_P->velocity.x, ptr_P->velocity.y);
-                delta_velocity = v_center_eigen + w * r - velocity_eigen;
-                ptr_P->velocity = ptr_P->velocity + k_damping * sf::Vector2f(delta_velocity.x(), delta_velocity.y());
-            }
-        }
-    }
-
-    // A METTRE DANS PHYSIC_CLASS
-    void PBD(float dt, float k_damping, int constraints_iter) {
-        for (int i = 0; i < this->height; i++) {
-            for (int j = 0; j < this->width; j++) {
-                Particle *ptr_P = this->TABparticles[i][j];
-                if (ptr_P == nullptr) {
-                    continue;
-                }
-                ptr_P->forces = {0.f, 0.f};
-                ptr_P->applyGravity(this->gravity);
-                ptr_P->applyFriction();
-                ptr_P->velocity = ptr_P->velocity + ptr_P->forces * (1 / ptr_P->mass) * dt;
-            }
-        }
-        damping_velocities(k_damping);
-        for (int i = 0; i < this->height; i++) {
-            for (int j = 0; j < this->width; j++) {
-                Particle *ptr_P = this->TABparticles[i][j];
-                if (ptr_P == nullptr) {
-                    continue;
-                }
-                ptr_P->pos = ptr_P->prev_pos + dt * ptr_P->velocity;
-            }
-        }
-        // Constraints detections (collisions...)
-
-        // Solving constraints
-        for (int i = 0; i < constraints_iter; i++) {
-            this->PBD_distance_constraint();
-        }
-
-        for (int i = 0; i < this->height; i++) {
-            for (int j = 0; j < this->width; j++) {
-                Particle *ptr_P = this->TABparticles[i][j];
-                if (ptr_P == nullptr) {
-                    continue;
-                }
-                ptr_P->velocity = (ptr_P->pos - ptr_P->prev_pos) / dt;
-                ptr_P->prev_pos = ptr_P->pos;
-            }
-        }
-    }
-
-    Cloth(int x, int y, int w, int h, float d,int m_p, float grav, float frict):
-        width(w), height(h), default_lenght(d), mass_particles(m_p), gravity(grav), number_p(w*h) {
         // Create all of the Particle in the Cloth_TAB
         sf::Vector2f last_pos = {float(x), float(y)};
         for (int i = 0; i < h; i++) {
@@ -343,16 +237,8 @@ public:
             }
         }
         // Assign each Triangle its neighbours
-        // faisable avec Cloth->TABparticles en faisant une ligne sur deux ou jsp quo
-        /*
-         * Programmation dynamique: Faire un tableau qui mémorise les triangles du bas de la dernière rangée
-         *
-         */
-        // Erreur mémoire: tentative de lecture d'un élement en dehors de la liste car
-        // TABtriangles est pas de w*2
-        // Ce qui est bizarre, il devrait être dexu fois plus long ?
-        for (int j = 0; j < w*2; j++) {
-            for (int i = 0; i < h; i++) {
+        for (int j = 0; j < (w-1)*2-1; j++) {
+            for (int i = 0; i < h-1; i++) {
                 Triangle *ptr_T = TABtriangles[i][j];
                 if (j != 0) {
                     ptr_T->list_nearest_triangles.push_back(TABtriangles[i][j-1]);
@@ -371,41 +257,4 @@ public:
             }
         }
     };
-    /*
-    Cloth(int x, int y, int w, int h, float d, float grav, float frict): width(w), height(h), distance(d), gravity(grav) {
-        int id = 0;
-        number_p = w * h;
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
-                id++;
-                Particle* ptr_New_P = new Particle(i*distance + x, j*distance + y, 5.f);
-                // CReating initial velocity
-                ptr_New_P->prev_pos = ptr_New_P->pos - sf::Vector2f {0.f, 0.f};
-                TABparticles[i][j] = ptr_New_P;
-                ptr_New_P->friction = frict;
-                ptr_New_P->id = id;
-                if (j == 0) {
-                    ptr_New_P->moving = false;
-                } else {
-                    ptr_New_P->moving = true;
-                }
-            }
-        }
-
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
-                Particle* ptr_P = TABparticles[i][j];
-                if (i != 0) {
-                    ptr_P->nearestParticles.push_back(TABparticles[i-1][j]);
-                } if (i != h-1) {
-                    ptr_P->nearestParticles.push_back(TABparticles[i+1][j]);
-                } if (j != 0) {
-                    ptr_P->nearestParticles.push_back(TABparticles[i][j-1]);
-                } if (j != w-1) {
-                    ptr_P->nearestParticles.push_back(TABparticles[i][j+1]);
-                }
-            }
-        }
-    }
-    */
 };

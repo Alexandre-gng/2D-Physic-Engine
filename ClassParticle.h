@@ -48,14 +48,7 @@ public:
             forces.y += mass * grav;
         }
     }
-    /*
-    void updateAcceleration(float grav) {
-        forces = {0.f, 0.f};
-        applyGravity(grav);
-        applyFriction();
-        acc = (forces * inverse_mass);
-    }
-     */
+
     void updateVelocity(float dt) {
         this->velocity = (pos - prev_pos) / dt;
     }

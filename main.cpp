@@ -17,12 +17,44 @@
  *          => Utiliser la méthode Muller
  *          => Conclusion: méthode qui demande bcp de calculs ? autant les initialiser dès le début
  *      - Changer toutes les types de liste différents pour un seul même (idéalement convertir les vector en eigen)
- *
+ *      - Améliorer le CMakeList afin d'importer Eigen par github, ou alors de trier les fichiers pour que ce soit propre
  */
 
 
+/*
+ * Réorganisation:
+ *      - Le PBD génére les contraintes à projeter, en fonction de l'objet et du contexte
+ *          -> Contraintes absolues
+ *          -> Contraintes occasionnelles (Proviennent de la détection de collisions)
+ *              => Sont ajoutées en fonction de la situation: Grâce à Physic ?
+ *
+ *          -> Certaines contraintes impliquent un ensemble de particules
+ *                 => YYY Problème: comment les objets doivent traiter les contraintes alors qu'elles requierent
+ *                 différents type d'ensemble (triangles, particules seules...) ?
+ *
+ *                      -> Donner à chaque Contrainte un attribut qui décrit qu'elle type d'ensemble elle requiert ?
+ *                          => Ds Physic: Pour chaque Objets:
+ *                                          Pour chaque Contrainte de l'Object:
+ *
+ *
+ *      - Le PBD projette les contraintes sur chaque particules de chaque objets
+ *          -> Ces projections se font particule par particule
+ *          -> Par contre
+ *
+ *          CHAQUE CONTRAINTES PREND EN ENTREE UN TRIANGLE
+ *              => si Stretching: parmi tous les joint opérer
+ *              => si bending: parmi tous les triagles opérer
+ *
+ *         SOLUTION: Passer par les Triangles
+ *
+ *         Comment faire si las structures est en 1D ?
+ *              => OSEF MDR CA EXISTE PAS SALE MTHO
+ *
+ */
+
 #include "ClassCloth.h"
-#include "ClassObject.h"
+#include "ClassParticle.h"
+#include "ClassConstraint.h"
 
 using namespace std;
 
@@ -32,14 +64,8 @@ int main() {
     const float DELTA_T_S = 0.005;
     const short DELTA_T_MS = DELTA_T_S*1000;
 
-    Cloth* ptrCloth;
 
-    hash<float> a;
-
-    const float MIN_DISTANCE_ROPE = 6.f;
-
-    //ptrCloth = new Cloth(250,200,17, 25, 15.f, 2500.f, 0.05f);
-    ptrCloth = new Cloth(250,200,18, 26, 15.f, 1.f, 5000.f, 0.01f);
+    Cloth* ptrCloth = new Cloth(250, 200, 18, 26, 15.f, 1.f, 0.01f);
 
     sf::RenderWindow window(sf::VideoMode(800, 600), "cloth simulation");
 
@@ -61,7 +87,7 @@ int main() {
             }
         }
         window.clear(sf::Color::Black);
-        //ptrCloth->PBD(DELTA_T_S, 0.f, 10);
+        ptrCloth->PBD(DELTA_T_S, 0.f, 10);
 
         for (int i = 0; i < ptrCloth->height; i++) {
             for (int j = 0; j < ptrCloth->width; j++) {

@@ -2,6 +2,7 @@
 
 using namespace std;
 
+#include "ClassJoint.h"
 
 class Triangle {
 public:
