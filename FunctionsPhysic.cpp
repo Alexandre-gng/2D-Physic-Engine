@@ -2,38 +2,45 @@
 #include "ClassConstraint.h"
 
 // Position Based Dynamic algorithm
-void Physic::PBD(float dt, float k_damping, int constraints_iter, Object* ptr_O) {
-    for (const auto& row_p: ptr_O->TABparticles) {
-        for (const auto& ptr_P: row_p) {
-            ptr_P->forces = {0.f, 0.f};
-            ptr_P->applyGravity(this->gravity);
-            ptr_P->applyFriction();
-            ptr_P->velocity = ptr_P->velocity + ptr_P->forces * (1 / ptr_P->mass) * dt;
+void Physic::PBD(float dt, float k_damping, int constraints_iter) {
+    int i = 0, j = 0;
+    for (const auto ptr_O: this->objects_list) {
+        for (const auto &row_p: ptr_O->TABparticles) {
+            i++;
+            j = 0;
+            for (const auto &ptr_P: row_p) {
+                j++;
+                if (ptr_P == nullptr) {continue;}
+                ptr_P->forces = {0.f, 0.f};
+                ptr_P->applyGravity(this->gravity);
+                ptr_P->applyFriction();
+                ptr_P->velocity = ptr_P->velocity + ptr_P->forces * (1 / ptr_P->mass) * dt;
+            }
         }
-    }
 
-    damping_velocities(k_damping, ptr_O);
+        damping_velocities(k_damping, ptr_O);
 
-    for (const auto& row_p: ptr_O->TABparticles) {
-        for (const auto &ptr_P: row_p) {
-            ptr_P->pos = ptr_P->prev_pos + dt * ptr_P->velocity;
+        for (const auto &row_p: ptr_O->TABparticles) {
+            for (const auto &ptr_P: row_p) {
+                ptr_P->pos = ptr_P->prev_pos + dt * ptr_P->velocity;
+            }
         }
-    }
 
-    // Constraints detections (collisions...) YYY
-    // HASH MAP OR BARNES-HUT ?
+        // Constraints detections (collisions...) YYY
+        // HASH MAP OR BARNES-HUT ?
 
-    // Solving constraints
-    for (int i = 0; i < constraints_iter; i++) {
-        for (const auto &constraint: ptr_O->constraints_list) {
-            constraint->apply();
+        // Solving constraints
+        for (int i = 0; i < constraints_iter; i++) {
+            for (const auto &constraint: ptr_O->constraints_list) {
+                constraint->apply();
+            }
         }
-    }
 
-    for (const auto& row_p: ptr_O->TABparticles) {
-        for (const auto &ptr_P: row_p) {
-            ptr_P->velocity = (ptr_P->pos - ptr_P->prev_pos) / dt;
-            ptr_P->prev_pos = ptr_P->pos;
+        for (const auto &row_p: ptr_O->TABparticles) {
+            for (const auto &ptr_P: row_p) {
+                ptr_P->velocity = (ptr_P->pos - ptr_P->prev_pos) / dt;
+                ptr_P->prev_pos = ptr_P->pos;
+            }
         }
     }
 }

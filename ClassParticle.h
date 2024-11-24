@@ -1,23 +1,12 @@
 #pragma once
 
-#include <vector>
-#include <math.h>
-#include <iostream>
-#include <thread>
-#include <chrono>
-#include <memory>
-
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/System/Vector2.hpp>
-
-#include "include/Eigen/Eigen"
+#include "Common.h"
+#include "ClassJoint.h"
 
 using namespace std;
 
-class Triangle;
-class Joint;
 class Object;
+class Triangle;
 
 class Particle {
 public:
@@ -36,7 +25,6 @@ public:
     Object* ptr_Object;
 
     // To modify YYY
-    vector<Particle*> nearestParticles;
     sf::CircleShape shape;
 
 
@@ -52,18 +40,12 @@ public:
     void updateVelocity(float dt) {
         this->velocity = (pos - prev_pos) / dt;
     }
-    void update(float dt) {
-    }
+
 
     void cutTwoParticles(Particle* Pa) {
-        for (auto &PaNearest: Pa->nearestParticles) {
-            if (PaNearest == this) {
-                PaNearest = nullptr;
-            }
-        }
-        for (auto &PbNearest: this->nearestParticles) {
-            if (PbNearest == Pa) {
-                PbNearest = nullptr;
+        for (const auto j: this->list_joints) {
+            if ((j->particle2 == Pa || j->particle1 == Pa) && (j->particle2 == this || j->particle1 == this)) {
+                j->deleteJoint();
             }
         }
     }
@@ -79,4 +61,3 @@ public:
         this->prev_pos = {x, y};
     }
 };
-

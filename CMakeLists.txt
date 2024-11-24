@@ -16,12 +16,12 @@ add_executable(Clothes
         ClassObject.h
         ClassPhysic.h
         ClassPhysic.h
-        ClassRectangle.h
         ClassConstraint.h
         ClassStretchingConstraint.h
         ClassTriangle.h
         ClassJoint.h
         FunctionsPhysic.cpp
+        Common.h
 )
 
 target_link_libraries(Clothes sfml-graphics)

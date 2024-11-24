@@ -1,119 +1,5 @@
 #include "ClassCloth.h"
 
-/*
-void Cloth::updateAllAccelerations() {
-    for (int i = 0; i < this->height; i++) {
-        for (int j = 0; j < this->width; j++) {
-            Particle* ptrP = this->TABparticles[i][j];
-            if (ptrP != nullptr) {
-                ptrP->updateAcceleration(this->gravity);
-            }
-        }
-        return;
-    }
-}
-*/
-/*
-// Verlet integration, good but not polyvalent
-void Cloth::simulateVerlet(float dt) {
-    for (int i = 0; i < this->height; i++) {
-        for (int j = 0; j < this->width; j++) {
-            Particle *ptrP = this->TABparticles[i][j];
-            if (ptrP != nullptr) {
-                ptrP->updateAcceleration(gravity);
-                ptrP->velocity = ptrP->velocity + ptrP->acc*dt;
-                ptrP->prev_pos = ptrP->pos;
-                ptrP->pos = ptrP->pos + ptrP->velocity*dt;
-            }
-        }
-    }
-    return;
-}
- */
-
-// Classic Jakobsen method
-void Cloth::JakobsenMethod() {
-    for (int i = 0; i < this->height; i++) {
-        for (int j = 0; j < this->width; j++) {
-            Particle* ptrP = this->TABparticles[i][j];
-            if (ptrP != nullptr) {
-                for (auto nearestP: ptrP->nearestParticles) {
-                    if (nearestP != nullptr) {
-                        sf::Vector2f delta_pos = nearestP->pos - ptrP->pos;
-
-                        float current_distance = sqrt(delta_pos.x * delta_pos.x + delta_pos.y * delta_pos.y);
-
-                        sf::Vector2f direction = delta_pos / current_distance;
-
-                        float deltaDistance = current_distance - this->default_lenght;
-
-                        if ((deltaDistance > 0) && (deltaDistance >= this->default_lenght*0.75)) {
-                            ptrP->cutTwoParticles(nearestP);
-                            continue;
-                        }
-
-                        sf::Vector2f correction = direction * (deltaDistance / 2.0f);
-
-                        if (!ptrP->moving && nearestP->moving) {
-                            nearestP->pos -= correction * 2.0f;
-                        }
-                        if (ptrP->moving && !nearestP->moving) {
-                            ptrP->pos += correction * 2.0f;
-                        }
-                        if (ptrP->moving && nearestP->moving) {
-                            ptrP->pos += correction;
-                            nearestP->pos -= correction;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return;
-}
-
-
-
-// PBD distance constraint solver
-void Cloth::PBD_distance_constraint() {
-    for (int i = 0; i < this->height; i++) {
-        for (int j = 0; j < this->width; j++) {
-            Particle *p1 = this->TABparticles[i][j];
-            if (p1 != nullptr) {
-                for (auto p2: p1->nearestParticles) {
-                    if (p2 == nullptr) {
-                        continue;
-                    }
-
-                    sf::Vector2f delta_pos = p2->pos - p1->pos;
-                    float current_distance = sqrt(delta_pos.x * delta_pos.x + delta_pos.y * delta_pos.y);
-
-                    sf::Vector2f deltaP1 = (-(p2->inverse_mass) * (current_distance - this->default_lenght) / ((p2->inverse_mass + p1->inverse_mass) * current_distance)) * delta_pos;
-                    sf::Vector2f deltaP2 = ((p1->inverse_mass) * (current_distance - this->default_lenght) / ((p2->inverse_mass + p1->inverse_mass) * current_distance)) * delta_pos;
-
-                    if ((current_distance > 0) && (current_distance >= this->default_lenght*1.25f)) {
-                        p1->cutTwoParticles(p2);
-                        continue;
-                    }
-
-                    if (!p1->moving && p2->moving) {
-                        p2->pos += deltaP1 * 2.0f;
-                    }
-                    if (p1->moving && !p2->moving) {
-                        p1->pos += deltaP2 * 2.0f;
-                    }
-                    if (p1->moving && p2->moving) {
-                        p1->pos += deltaP2;
-                        p2->pos += deltaP1;
-                    }
-                }
-            }
-        }
-    }
-    return;
-}
-
-
 // PBD distance constraint solver
 void Cloth::solid_collision_constraint() {
     for (int i = 0; i < this->height; i++) {
@@ -128,29 +14,78 @@ void Cloth::solid_collision_constraint() {
     return;
 }
 
-void Cloth::suppParticle(sf::Vector2f mousePos) {
+// YYY
+void Cloth::detect_Particle(sf::Vector2f mousePos) {
     bool stop = false;
     for (int i = 0; i < this->height; i++) {
         for (int j = 0; j < this->width; j++) {
             if (stop) break;
-            Particle* ptrP = this->TABparticles[i][j];
+            Particle *ptrP = this->TABparticles[i][j];
             if (ptrP != nullptr) {
                 if ((mousePos.x + 5.0 > ptrP->pos.x) && (mousePos.x - 5.0 < ptrP->pos.x)) {
                     if ((mousePos.y + 5.0 > ptrP->pos.y) && (mousePos.y - 5.0 < ptrP->pos.y)) {
-
-                        for (auto pNearest: this->TABparticles[i][j]->nearestParticles) {
-                            if (pNearest == nullptr) continue;
-                            for (auto &p: pNearest->nearestParticles) {
-                                Particle** ptrp = &p;
-                                if (p == ptrP) {
-                                    p = nullptr;
-                                }
-                            }
-                        }
-                        this->TABparticles[i][j]= nullptr;
+                        // SUPP PARTICLE
                         stop = true;
                         break;
                     }
+                }
+            }
+        }
+    }
+}
+/*
+* SUPRESSION 1 PARTICLE (ptr_p)
+*      // Pour tous les triangles que constitue ptr_p (Z1):
+*      for (Triangle ptr_t : ptr_p->list_triangles_friends) {
+*          // Pour tous les triangles de Z2:
+*          for (Triangle t_voisin: ptr_t->list_nearest_triangles) {
+*              if (t_voisin != nullptr) {
+*                  if (t_voisin == ptr_t) {
+*                      TYPE *var = t_voisin->list_nearest_triangles // ASSIGNER PTR POUR MODIFIER
+*                      var = nullptr
+*                  }
+*              }
+*          }
+*      }
+*
+*      // Pour tous les Joints qui contiennent ptr_p :
+*      //          Surtout une étape afin d'éviter les fuites de mémoire
+*     for (Joint ptr_j : ptr_p->list_joints) {
+*          delete ptr_j;
+*     }
+*
+*     // Supprimer les triangles liés à la ptr_p dans Cloth->list_triangles
+*     for (Triangle ptr_t: Cloth->list_triangles) {
+*          for (Triangle ptr_t2: ptr_p->list_triangles_friends) {
+*              if (ptr_t == ptr_t2) {
+*                  // SUPPRESSION PAR PTR A FAIRE
+*                  ptr_t = nullptr
+*              }
+*          }
+*     }
+*
+*     // Suprimer le ptr_p dans Cloth->TABparticles
+*     for (int i = 0; i < this->height; i++) {
+*          for (int j = 0; j < this->width; j++) {
+*              if (ptr_p == Cloth->TABparticles[i][j]) {
+*                  // SUPPRESSION PAR PTR A FAIRE
+*                  Cloth->TABparticles[i][j] = nullptr;
+*              }
+*          }
+*      }
+*
+*      delete la prticle
+*/
+
+void Cloth::supp_Particle(Particle* ptr_P) {
+    // Pour tous les triangles que constitue ptr_p (Z1):
+    for (Triangle *ptr_T: ptr_P->list_triangles_friends) {
+        // Pour tous les triangles de Z2:
+        for (Triangle *ptr_T_neighbour: ptr_T->list_nearest_triangles) {
+            if (ptr_T_neighbour != nullptr) {
+                if (ptr_T_neighbour == ptr_T) {
+                    Triangle *var = ptr_T_neighbour->list_nearest_triangles
+                    var = nullptr;
                 }
             }
         }

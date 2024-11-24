@@ -1,7 +1,5 @@
 #pragma once
 
-class Particle;
-
 class Joint {
 public:
     Particle* particle1;
@@ -14,6 +12,10 @@ public:
         p2->list_joints.push_back(this);
         distance = sqrt((delta_pos.x)*(delta_pos.x) + (delta_pos.y*delta_pos.y));
     };
+
+    void deleteJoint() {
+
+    }
 
     void apply();
 };

@@ -1,8 +1,11 @@
 /*
- * ETAPES:
+ * ETAPES COURT TERME:
+ *    -> problèmes de dépendances 
+ *    -> Algorithme de suppression d'une seule Particle
+ *    -> Algorithme de suppression d'un Joint (rupture car trop de distance)
  *
+ * ETAPES LONG TERME:
  *    -> Implémenter les contraintes de base sur un Cloth (Bending)
- *    -> Refaire tout le système de Classe en commencant par 'Cloth'
  *    -> Détection des collisions internes avec une hash map (Muller)
  *          => Le généraliser à tout l'espace avec une Barnes-Hut ?
  *
@@ -36,25 +39,11 @@
  *                          => Ds Physic: Pour chaque Objets:
  *                                          Pour chaque Contrainte de l'Object:
  *
- *
- *      - Le PBD projette les contraintes sur chaque particules de chaque objets
- *          -> Ces projections se font particule par particule
- *          -> Par contre
- *
- *          CHAQUE CONTRAINTES PREND EN ENTREE UN TRIANGLE
- *              => si Stretching: parmi tous les joint opérer
- *              => si bending: parmi tous les triagles opérer
- *
- *         SOLUTION: Passer par les Triangles
- *
- *         Comment faire si las structures est en 1D ?
- *              => OSEF MDR CA EXISTE PAS SALE MTHO
- *
  */
 
 #include "ClassCloth.h"
 #include "ClassParticle.h"
-#include "ClassConstraint.h"
+#include "ClassPhysic.h"
 
 using namespace std;
 
@@ -65,7 +54,9 @@ int main() {
     const short DELTA_T_MS = DELTA_T_S*1000;
 
 
-    Cloth* ptrCloth = new Cloth(250, 200, 18, 26, 15.f, 1.f, 0.01f);
+    Cloth* ptr_Cloth = new Cloth(250, 200, 18, 26, 15.f, 1.f, 0.01f);
+
+    Physic* ptr_Physic = new Physic({ptr_Cloth}, 5000);
 
     sf::RenderWindow window(sf::VideoMode(800, 600), "cloth simulation");
 
@@ -83,15 +74,15 @@ int main() {
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                 sf::Vector2f newMousePos = window.mapPixelToCoords(mousePos);
-                ptrCloth->suppParticle(newMousePos);
+                ptr_Cloth->supp_Particle(newMousePos);
             }
         }
         window.clear(sf::Color::Black);
-        ptrCloth->PBD(DELTA_T_S, 0.f, 10);
+        ptr_Physic->PBD(DELTA_T_S, 0.f, 10);
 
-        for (int i = 0; i < ptrCloth->height; i++) {
-            for (int j = 0; j < ptrCloth->width; j++) {
-                Particle *ptrP = ptrCloth->TABparticles[i][j];
+        for (int i = 0; i < ptr_Cloth->height; i++) {
+            for (int j = 0; j < ptr_Cloth->width; j++) {
+                Particle *ptrP = ptr_Cloth->TABparticles[i][j];
                 if (ptrP == nullptr) {
                     continue;
                 }

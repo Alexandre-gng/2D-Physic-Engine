@@ -1,11 +1,9 @@
 #pragma once
 
-#include "ClassParticle.h"
+#include "Common.h"
 #include "ClassObject.h"
-#include "ClassTriangle.h"
-#include "ClassConstraint.h"
-#include "ClassStretchingConstraint.h"
 
+using namespace std;
 using Eigen::MatrixXd;
 /*
  * Contraintes:
@@ -15,60 +13,14 @@ using Eigen::MatrixXd;
  *      => With rigid body
  *      => External and pressurized forces ?
  *
- * SUPRESSION 1 PARTICLE (ptr_p)
- *      // Pour tous les triangles que constitue ptr_p (Z1):
- *      for (Triangle ptr_t : ptr_p->list_triangles_friends) {
- *          // Pour tous les triangles de Z2:
- *          for (Triangle t_voisin: ptr_t->list_nearest_triangles) {
- *              if (t_voisin != nullptr) {
- *                  if (t_voisin == ptr_t) {
- *                      TYPE *var = t_voisin->list_nearest_triangles // ASSIGNER PTR POUR MODIFIER
- *                      var = nullptr
- *                  }
- *              }
- *          }
- *      }
- *
- *      // Pour tous les Joints qui contiennent ptr_p :
- *      //          Surtout une étape afin d'éviter les fuites de mémoire
- *     for (Joint ptr_j : ptr_p->list_joints) {
- *          delete ptr_j;
- *     }
- *
- *     // Supprimer les triangles liés à la ptr_p dans Cloth->list_triangles
- *     for (Triangle ptr_t: Cloth->list_triangles) {
- *          for (Triangle ptr_t2: ptr_p->list_triangles_friends) {
- *              if (ptr_t == ptr_t2) {
- *                  // SUPPRESSION PAR PTR A FAIRE
- *                  ptr_t = nullptr
- *              }
- *          }
- *     }
- *
- *     // Suprimer le ptr_p dans Cloth->TABparticles
- *     for (int i = 0; i < this->height; i++) {
- *          for (int j = 0; j < this->width; j++) {
- *              if (ptr_p == Cloth->TABparticles[i][j]) {
- *                  // SUPPRESSION PAR PTR A FAIRE
- *                  Cloth->TABparticles[i][j] = nullptr;
- *              }
- *          }
- *      }
- *
- *      delete la prticle
  */
 class Cloth : public Object {
 public:
-    int          width;
-    int          height;
     int          default_lenght;
     int          mass_particles;
+    int          height;
+    int          width;
     unsigned int number_p;
-
-    void updateAllAccelerations();
-    void simulateVerlet(float);
-    void JakobsenMethod();
-
 
 
     void update() override {
@@ -76,22 +28,20 @@ public:
     }
 
     // REFAIRE AVEC L'ALGO YYY
-    void suppParticle(sf::Vector2f);
+    void detect_Particle(sf::Vector2f);
+    void supp_Particle(Particle* ptr_P);
 
-    // TO_SUPP AND MOVE YYY
-    // PBD constraint solver of the distance between particles
-    void PBD_distance_constraint();
-    // Constraint solver of the collision solid/ Cloth
+    // Constraint solver of the collision solid/ Cloth YYY
     void solid_collision_constraint();
 
 
     Cloth(int x, int y, int w, int h, float d,int m_p, float frict)
-    : width(w), height(h), default_lenght(d), mass_particles(m_p), number_p(w*h), Object(CLOTH) {
+    : default_lenght(d), mass_particles(m_p), width(w), height(h), number_p(w*h), Object(CLOTH, h, w, h, w*2) {
 
         // Adding the Stretching constraint
         constraints_list.push_back(std::make_shared<StretchingConstraint>(default_lenght, this));
 
-        // Create all of the Particle in the Cloth_TAB
+        // Create all the Particle in the Cloth_TAB
         sf::Vector2f last_pos = {float(x), float(y)};
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
@@ -129,29 +79,30 @@ public:
             }
         }
 
-        // Create Joint in Cloth
-        Joint *ptr_NewJoint1, *ptr_NewJoint2, *ptr_NewJoint3, *ptr_exception;
+        // Create Joint in Cloth YYY VALUE NOT USED
         for (int i = 0; i < h-1; i++) {
             for (int j = 0; j < w-1; j++) {
                 Particle *ptr_P = TABparticles[i][j];
                 if (j % 2 == 0) {
-                    ptr_NewJoint1 = new Joint(TABparticles[i][j], TABparticles[i+1][j]);
-                    ptr_NewJoint2 = new Joint(TABparticles[i][j], TABparticles[i+1][j+1]);
-                    ptr_NewJoint3 = new Joint(TABparticles[i][j], TABparticles[i][j+1]);
+                    new Joint(TABparticles[i][j], TABparticles[i+1][j]);
+                    new Joint(TABparticles[i][j], TABparticles[i+1][j+1]);
+                    new Joint(TABparticles[i][j], TABparticles[i][j+1]);
                     if (j == w-2) {
-                        ptr_exception = new Joint(TABparticles[i][j+1], TABparticles[i+1][j+1]);
+                        new Joint(TABparticles[i][j+1], TABparticles[i+1][j+1]);
                     }
                 } else {
-                    ptr_NewJoint1 = new Joint(TABparticles[i][j], TABparticles[i+1][j]);
-                    ptr_NewJoint2 = new Joint(TABparticles[i+1][j], TABparticles[i][j+1]);
-                    ptr_NewJoint3 = new Joint(TABparticles[i][j], TABparticles[i][j+1]);
+                    new Joint(TABparticles[i][j], TABparticles[i+1][j]);
+                    new Joint(TABparticles[i+1][j], TABparticles[i][j+1]);
+                    new Joint(TABparticles[i][j], TABparticles[i][j+1]);
                     if (i == h-2) {
-                        ptr_exception = new Joint(TABparticles[i+1][j], TABparticles[i+1][j+1]);
+                        new Joint(TABparticles[i+1][j], TABparticles[i+1][j+1]);
                     }
                 }
             }
         }
+
         // Create Triangle with Joint in Cloth
+
         int h_number_triangle=0;
         int w_number_triangle=0;
         for (int i = 0; i < h-1; i++) {
@@ -191,9 +142,10 @@ public:
                     }
                     Triangle* ptr_NewT1 = new Triangle(AB, AD, BD);
                     Triangle* ptr_NewT2 = new Triangle(AC, AD, CD);
-                    w_number_triangle += 2;
                     this->TABtriangles[i][j*2] = ptr_NewT1;
                     this->TABtriangles[i][j*2+1] = ptr_NewT2;
+                    w_number_triangle += 2;
+                    h_number_triangle ++;
                 }
                  /*        AB
                  *      A ---- B
@@ -230,9 +182,10 @@ public:
                     }
                     Triangle* ptr_NewT1 = new Triangle(AB, BC, AC);
                     Triangle* ptr_NewT2 = new Triangle(BD, CD, BC);
-                    w_number_triangle += 2;
                     this->TABtriangles[i][j*2] = ptr_NewT1;
                     this->TABtriangles[i][j*2+1] = ptr_NewT2;
+                    w_number_triangle += 2;
+                    h_number_triangle ++;
                 }
             }
         }
