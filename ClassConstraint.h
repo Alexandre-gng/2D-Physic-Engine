@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ClassParticle.h"
+class Object;
 
 class Constraint {
 public:

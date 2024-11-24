@@ -41,8 +41,11 @@
  *
  */
 
+#include <iostream>
+#include <thread>
+#include <chrono>
+#include <SFML/Graphics.hpp>
 #include "ClassCloth.h"
-#include "ClassParticle.h"
 #include "ClassPhysic.h"
 
 using namespace std;
@@ -74,7 +77,8 @@ int main() {
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                 sf::Vector2f newMousePos = window.mapPixelToCoords(mousePos);
-                ptr_Cloth->supp_Particle(newMousePos);
+                // YYY
+                //ptr_Cloth->supp_Particle(newMousePos);
             }
         }
         window.clear(sf::Color::Black);

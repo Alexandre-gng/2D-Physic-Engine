@@ -1,12 +1,13 @@
 #pragma once
 
-#include "Common.h"
+#include "ClassParticle.h"
 #include "ClassJoint.h"
-
-using namespace std;
 
 class Object;
 class Triangle;
+class Joint;
+
+using namespace std;
 
 class Particle {
 public:
@@ -28,27 +29,11 @@ public:
     sf::CircleShape shape;
 
 
-    void applyFriction() {
-        forces -= velocity * friction;
-    }
-    void applyGravity(float grav) {
-        if (moving) {
-            forces.y += mass * grav;
-        }
-    }
+    void applyFriction();
+    void applyGravity(float grav);
+    void updateVelocity(float dt);
 
-    void updateVelocity(float dt) {
-        this->velocity = (pos - prev_pos) / dt;
-    }
-
-
-    void cutTwoParticles(Particle* Pa) {
-        for (const auto j: this->list_joints) {
-            if ((j->particle2 == Pa || j->particle1 == Pa) && (j->particle2 == this || j->particle1 == this)) {
-                j->deleteJoint();
-            }
-        }
-    }
+    void cutTwoParticles(Particle* Pa);
 
     Particle(float x, float y, float m) : pos(sf::Vector2f {x,y}), prev_pos(sf::Vector2f {x,y}), mass(m), inverse_mass(1/m) {
         // SFML Shape creation

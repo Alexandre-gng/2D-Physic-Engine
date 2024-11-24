@@ -1,14 +1,17 @@
-/*
- * Object comporte une liste de ptr Particle,
- */
-
 #pragma once
 
-using namespace std;
 
-class Joint;
-class Particle;
+#include "Common.h"
+#include "ClassJoint.h"
+#include "ClassTriangle.h"
+#include "ClassConstraint.h"
+#include "ClassStretchingConstraint.h"
+
+
+class Triangle;
 class Constraint;
+
+using namespace std;
 
 class Object {
 public:

@@ -1,4 +1,6 @@
 #include "ClassCloth.h"
+#include "ClassTriangle.h"
+#include "ClassParticle.h"
 
 // PBD distance constraint solver
 void Cloth::solid_collision_constraint() {
@@ -77,6 +79,8 @@ void Cloth::detect_Particle(sf::Vector2f mousePos) {
 *      delete la prticle
 */
 
+// YYY YYY TO DO !
+/*
 void Cloth::supp_Particle(Particle* ptr_P) {
     // Pour tous les triangles que constitue ptr_p (Z1):
     for (Triangle *ptr_T: ptr_P->list_triangles_friends) {
@@ -91,3 +95,4 @@ void Cloth::supp_Particle(Particle* ptr_P) {
         }
     }
 }
+ */

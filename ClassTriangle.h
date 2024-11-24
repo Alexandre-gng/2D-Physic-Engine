@@ -3,6 +3,7 @@
 using namespace std;
 
 #include "ClassJoint.h"
+#include "ClassParticle.h"
 
 class Triangle {
 public:

@@ -22,6 +22,9 @@ add_executable(Clothes
         ClassJoint.h
         FunctionsPhysic.cpp
         Common.h
+        FunctionsParticle.cpp
+        FunctionsStretchingConstraint.cpp
+        FunctionsJoint.cpp
 )
 
 target_link_libraries(Clothes sfml-graphics)

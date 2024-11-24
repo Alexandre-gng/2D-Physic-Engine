@@ -1,7 +1,14 @@
 #pragma once
 
-#include "Common.h"
+
+#include <vector>
+#include <memory>
+#include <iostream>
+#include <SFML/Graphics.hpp>
 #include "ClassObject.h"
+#include "ClassParticle.h"
+#include "ClassJoint.h"
+
 
 using namespace std;
 using Eigen::MatrixXd;
