@@ -25,7 +25,6 @@ add_executable(Clothes
         FunctionsParticle.cpp
         FunctionsStretchingConstraint.cpp
         FunctionsJoint.cpp
-        Object.cpp
         FunctionsObject.cpp
 )
 

@@ -24,6 +24,7 @@ public:
     bool                            moving;
 
     vector<vector<Particle*>>                 TABparticles;
+
     vector<vector<Triangle*>>                 TABtriangles;
     vector<shared_ptr<Constraint>>            constraints_list;
 
