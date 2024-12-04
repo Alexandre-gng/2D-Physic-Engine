@@ -18,7 +18,7 @@ void Particle::updateVelocity(float dt) {
 void Particle::cutTwoParticles(Particle* Pa) {
     for (const auto j: this->list_joints) {
         if ((j->particle2 == Pa || j->particle1 == Pa) && (j->particle2 == this || j->particle1 == this)) {
-            j->deleteJoint();
+            //j->deleteJoint();
         }
     }
 }

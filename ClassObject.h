@@ -27,6 +27,8 @@ public:
     vector<vector<Triangle*>>                 TABtriangles;
     vector<shared_ptr<Constraint>>            constraints_list;
 
+    // Delete a Joint between two Particles
+    void deleteJoint(Joint* ptr_J);
 
     Object() = default;
     Object(type t, int h_P, int w_P, int h_T, int w_T) : object_type(t) {
@@ -40,4 +42,8 @@ public:
 
     // Update the position of the object
     virtual void update() = 0;
+
+
+    void detect_Particle(sf::Vector2f mouse_pos);
+    virtual void supp_Particle(Particle* ptr_P) = 0;
 };

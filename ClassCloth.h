@@ -35,7 +35,6 @@ public:
     }
 
     // REFAIRE AVEC L'ALGO YYY
-    void detect_Particle(sf::Vector2f);
     void supp_Particle(Particle* ptr_P);
 
     // Constraint solver of the collision solid/ Cloth YYY

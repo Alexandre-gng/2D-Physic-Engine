@@ -1,6 +1,5 @@
 /*
  * ETAPES COURT TERME:
- *    -> problèmes de dépendances 
  *    -> Algorithme de suppression d'une seule Particle
  *    -> Algorithme de suppression d'un Joint (rupture car trop de distance)
  *
@@ -23,6 +22,12 @@
  *      - Améliorer le CMakeList afin d'importer Eigen par github, ou alors de trier les fichiers pour que ce soit propre
  */
 
+/* OPTIMISATIONS POSSIBLES:
+ *      - Triangle.list_joints devienne un vector de Joint, et non de Joint*
+ *      -
+ *
+ *
+ */
 
 /*
  * Réorganisation:
@@ -77,13 +82,11 @@ int main() {
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                 sf::Vector2f newMousePos = window.mapPixelToCoords(mousePos);
-                // YYY
-                //ptr_Cloth->supp_Particle(newMousePos);
+                ptr_Cloth->detect_Particle(newMousePos);
             }
         }
         window.clear(sf::Color::Black);
         ptr_Physic->PBD(DELTA_T_S, 0.f, 10);
-
         for (int i = 0; i < ptr_Cloth->height; i++) {
             for (int j = 0; j < ptr_Cloth->width; j++) {
                 Particle *ptrP = ptr_Cloth->TABparticles[i][j];

@@ -2,6 +2,7 @@
 #include "ClassParticle.h"
 #include "ClassObject.h"
 
+
 void StretchingConstraint::apply() {
     for (const auto& row_particle: ptr_object->TABparticles) {
         for (const auto& ptr_p1: row_particle) {

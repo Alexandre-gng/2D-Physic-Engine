@@ -25,6 +25,8 @@ add_executable(Clothes
         FunctionsParticle.cpp
         FunctionsStretchingConstraint.cpp
         FunctionsJoint.cpp
+        Object.cpp
+        FunctionsObject.cpp
 )
 
 target_link_libraries(Clothes sfml-graphics)

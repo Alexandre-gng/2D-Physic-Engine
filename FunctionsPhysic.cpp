@@ -1,5 +1,4 @@
 #include "ClassPhysic.h"
-#include "ClassConstraint.h"
 
 // Position Based Dynamic algorithm
 void Physic::PBD(float dt, float k_damping, int constraints_iter) {
@@ -17,9 +16,9 @@ void Physic::PBD(float dt, float k_damping, int constraints_iter) {
                 ptr_P->velocity = ptr_P->velocity + ptr_P->forces * (1 / ptr_P->mass) * dt;
             }
         }
-
+        cout << "eh" << endl;
         damping_velocities(k_damping, ptr_O);
-
+        cout << "eh2" << endl;
         for (const auto &row_p: ptr_O->TABparticles) {
             for (const auto &ptr_P: row_p) {
                 ptr_P->pos = ptr_P->prev_pos + dt * ptr_P->velocity;
@@ -51,8 +50,15 @@ void Physic::damping_velocities(float k_damping, Object* ptr_O) {
     sf::Vector2f x_center = {0.f, 0.f};
     sf::Vector2f v_center = {0.f, 0.f};
     float total_mass = 0.f;
-
+    cout << "eh1" << endl;
     // Center of mass and velocity
+    for (int i = 0; i < ptr_O->height; i++) {
+        for (int j = 0; j < this->width; j++) {
+            if (ptr_P == this->TABparticles[i][j]) {
+                this->TABparticles[i][j] = nullptr;
+            }
+        }
+    }
     for (const auto& row_p: ptr_O->TABparticles) {
         for (const auto &ptr_P: row_p) {
             total_mass += ptr_P->mass;
@@ -62,7 +68,7 @@ void Physic::damping_velocities(float k_damping, Object* ptr_O) {
     }
     x_center = x_center * (1 / total_mass);
     v_center = v_center * (1 / total_mass);
-
+    cout << "eh3" << endl;
     // Angular movement
     float L = 0.f;
     // Inertia tensor
@@ -88,7 +94,7 @@ void Physic::damping_velocities(float k_damping, Object* ptr_O) {
     }
     Eigen::Matrix2f I_inverse;
     I_inverse = I.inverse();
-
+    cout << "eh4" << endl;
     // angluar velocity
     Eigen::Matrix2f w;
     w = I_inverse * L;

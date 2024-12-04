@@ -8,7 +8,6 @@ using namespace std;
 class Triangle {
 public:
     vector<Joint*> list_joints;
-
     vector<Triangle*> list_nearest_triangles;
     float normal_vector;
 
