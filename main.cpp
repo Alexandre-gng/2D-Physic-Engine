@@ -61,8 +61,7 @@ int main() {
     const float DELTA_T_S = 0.005;
     const short DELTA_T_MS = DELTA_T_S*1000;
 
-
-    Cloth* ptr_Cloth = new Cloth(250, 200, 18, 26, 15.f, 1.f, 0.01f);
+    Cloth* ptr_Cloth = new Cloth(200, 200, 18, 26, 15.f, 1.f, 0.01f);
 
     Physic* ptr_Physic = new Physic({ptr_Cloth}, 5000);
 
@@ -70,7 +69,6 @@ int main() {
 
     // Floor
     //Solid solid(sf::Vector2f(300, 500), 200, 50);  // Position et taille du solide
-
 
     while (window.isOpen()) {
         this_thread::sleep_for(chrono::milliseconds(DELTA_T_MS));
@@ -86,19 +84,15 @@ int main() {
             }
         }
         window.clear(sf::Color::Black);
-        ptr_Physic->PBD(DELTA_T_S, 0.f, 10);
-        for (int i = 0; i < ptr_Cloth->height; i++) {
-            for (int j = 0; j < ptr_Cloth->width; j++) {
-                Particle *ptrP = ptr_Cloth->TABparticles[i][j];
-                if (ptrP == nullptr) {
-                    continue;
-                }
-                ptrP->shape.setPosition(ptrP->pos.x, ptrP->pos.y);
-                window.draw(ptrP->shape);
+        ptr_Physic->PBD(DELTA_T_S, 0.05f, 10);
+        for (auto ptr_P: ptr_Cloth->LIST_particles) {
+            if (ptr_P == nullptr) {
+                continue;
             }
+            ptr_P->shape.setPosition(ptr_P->pos.x, ptr_P->pos.y);
+            window.draw(ptr_P->shape);
         }
         window.display();
     }
-
     return 0;
 }

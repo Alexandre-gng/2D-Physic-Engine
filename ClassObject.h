@@ -23,9 +23,9 @@ public:
     type                            object_type;
     bool                            moving;
 
-    vector<vector<Particle*>>                 TABparticles;
+    vector<Particle*>                 LIST_particles;
 
-    vector<vector<Triangle*>>                 TABtriangles;
+    vector<vector<Triangle*>>                 TAB_triangles;
     vector<shared_ptr<Constraint>>            constraints_list;
 
     // Delete a Joint between two Particles
@@ -33,8 +33,8 @@ public:
 
     Object() = default;
     Object(type t, int h_P, int w_P, int h_T, int w_T) : object_type(t) {
-        TABparticles.resize(h_P, std::vector<Particle*>(w_P, nullptr));
-        TABtriangles.resize(h_T, std::vector<Triangle*>(w_T, nullptr));
+        LIST_particles.resize(h_P * w_P);
+        TAB_triangles.resize(h_T, std::vector<Triangle*>(w_T, nullptr));
     }
 
 

@@ -13,18 +13,24 @@ public:
 
     // Constructeur avec trois Joint en paramètre
     // Donner à chaque particle du Triangle son ptr vers le Triangle
-    Triangle(Joint* j1, Joint* j2, Joint* j3) {
-        list_joints.push_back(j1);
-        list_joints.push_back(j2);
-        list_joints.push_back(j3);
+    Triangle(Joint* ptr_J1, Joint* ptr_J2, Joint* ptr_J3) {
+        list_joints.push_back(ptr_J1);
+        list_joints.push_back(ptr_J2);
+        list_joints.push_back(ptr_J3);
         // Add the ptr_triangle to each Particl concerned
-        j1->particle1->list_triangles_friends.push_back(this);
-        j1->particle2->list_triangles_friends.push_back(this);
-        if (j2->particle1 != j1->particle1 && j2->particle1 != j1->particle2) {
-            j2->particle1->list_triangles_friends.push_back(this);
+        //cout << "here0" << endl;
+        ptr_J1->particle1->list_triangles_friends.push_back(this);
+        //cout << "here1" << endl;
+        ptr_J1->particle2->list_triangles_friends.push_back(this);
+        if (ptr_J2->particle1 != ptr_J1->particle1 && ptr_J2->particle1 != ptr_J1->particle2) {
+            //cout << "har1" << endl;
+            // cout << ""
+            ptr_J2->particle1->list_triangles_friends.push_back(this);
         } else {
-            j2->particle2->list_triangles_friends.push_back(this);
+            ptr_J2->particle2->list_triangles_friends.push_back(this);
+            //cout << "har2" << endl;
         }
+        //cout << "Triangle created" << endl;
     }
 
     // Update the normal_vector to the triangle, a scalar in 2D and vector in 3D

@@ -2,19 +2,6 @@
 #include "ClassParticle.h"
 
 
-// PBD distance constraint solver YYY
-void Cloth::solid_collision_constraint() {
-    for (int i = 0; i < this->height; i++) {
-        for (int j = 0; j < this->width; j++) {
-            Particle *p1 = this->TABparticles[i][j];
-            if (p1 == nullptr) {
-                continue;
-            }
-            //if (p1->pos.y > )
-        }
-    }
-    return;
-}
 
 
 /*
@@ -66,37 +53,38 @@ void Cloth::solid_collision_constraint() {
 *      delete la prticle
 */
 
-
 // Delete a Particle in the Cloth, and all of the Triangle and Joint that contain it
-// YYY : MEMORY LEAK
 void Cloth::supp_Particle(Particle* ptr_P) {
+    cout << "start supp particl"<< endl;
     // Delete all of the ptr_T concerned in the Cloth->TABtriangles
-    for (auto& row_T: this->TABtriangles) {
+    for (auto& row_T: this->TAB_triangles) {
         for (auto& ptr_T: row_T) {
             if (ptr_T != nullptr) {
-                for (auto ptr_T_friend: ptr_P->list_triangles_friends) {
-                    if (ptr_T_friend == ptr_T) {
-                        ptr_T = nullptr;
+                for (auto it = ptr_P->list_triangles_friends.begin(); it != ptr_P->list_triangles_friends.end(); it++) {
+                    if (*it == ptr_T) {
+                        ptr_P->list_triangles_friends.erase(it);
                         break;
                     }
                 }
             }
         }
     }
+
     // Delete the ptr_P in the Cloth->TABparticles
-    for (int i = 0; i < this->height; i++) {
-        for (int j = 0; j < this->width; j++) {
-            if (ptr_P == this->TABparticles[i][j]) {
-                this->TABparticles[i][j] = nullptr;
-            }
+    for (auto it = this->LIST_particles.begin(); it != this->LIST_particles.end(); it++) {
+        if (*it == ptr_P) {
+            this->LIST_particles.erase(it);
+            break;
         }
     }
+
     // Delete the reference of the neighbour triangles of ptr_P
     for (Triangle *ptr_T: ptr_P->list_triangles_friends) {
         int l1 = 0, l2 = 0, l3 = 0;
         for (Triangle *ptr_T_neighbour: ptr_T->list_nearest_triangles) {
             if (ptr_T_neighbour != nullptr) {
                 int cpt = 0;
+                // loop ? YYY
                 for (int i = 0; i < ptr_T_neighbour->list_nearest_triangles.size(); i++) {
                     cpt ++;
                 }
@@ -110,7 +98,8 @@ void Cloth::supp_Particle(Particle* ptr_P) {
             }
         }
     }
-    // Delete the dead joint to all of the ptr_P's neighbours
+
+    // Delete the dead joints of all ptr_P's neighbours particles
     for (auto ptr_J: ptr_P->list_joints) {
         if (ptr_J->particle1 == ptr_P) {
             for (auto it = ptr_J->particle2->list_joints.begin(); it != ptr_J->particle2->list_joints.end(); it++) {
@@ -130,13 +119,42 @@ void Cloth::supp_Particle(Particle* ptr_P) {
             }
         }
     }
+
+    // Delete all dead Triangles of the ptr_P's neighbours Particle
+    for (auto ptr_T: ptr_P->list_triangles_friends) {
+        for (auto ptr_J: ptr_T->list_joints) {
+            if (ptr_J->particle1 != ptr_P && ptr_J->particle2 != ptr_P) {
+                if (ptr_J->particle1 != nullptr) {
+                    for (auto it = ptr_J->particle1->list_triangles_friends.begin(); it != ptr_J->particle1->list_triangles_friends.end(); it++) {
+                        if (*it == ptr_T) {
+                            *it = nullptr;
+                            ptr_J->particle1->list_triangles_friends.erase(it);
+                            break;
+                        }
+                    }
+                }
+                if (ptr_J->particle2 != nullptr) {
+                    for (auto it = ptr_J->particle2->list_triangles_friends.begin(); it != ptr_J->particle2->list_triangles_friends.end(); it++) {
+                        if (*it == ptr_T) {
+                            *it = nullptr;
+                            ptr_J->particle2->list_triangles_friends.erase(it);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // Delete every Triangle that contain ptr_P
     for (auto ptr_T: ptr_P->list_triangles_friends) {
+        if (ptr_T == nullptr) { continue;}
         delete ptr_T;
     }
 
     // Delete every joints that contain ptr_P
     for (auto ptr_J: ptr_P->list_joints) {
+        if (ptr_J == nullptr) { continue;}
         delete ptr_J;
     }
 
