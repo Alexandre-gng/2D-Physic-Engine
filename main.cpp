@@ -50,8 +50,8 @@
 #include <thread>
 #include <chrono>
 #include <SFML/Graphics.hpp>
-#include "ClassCloth.h"
-#include "ClassPhysic.h"
+#include "include/Objects/ClassCloth.hpp"
+#include "include/ClassPhysic.hpp"
 
 using namespace std;
 
@@ -67,8 +67,10 @@ int main() {
 
     sf::RenderWindow window(sf::VideoMode(800, 600), "cloth simulation");
 
-    // Floor
-    //Solid solid(sf::Vector2f(300, 500), 200, 50);  // Position et taille du solide
+    // Static rigid body (floor)
+    sf::RectangleShape rectangle(sf::Vector2f(450, 50));
+    rectangle.setPosition(100, 500);
+    rectangle.setFillColor(sf::Color::Green);
 
     while (window.isOpen()) {
         this_thread::sleep_for(chrono::milliseconds(DELTA_T_MS));
@@ -84,7 +86,7 @@ int main() {
             }
         }
         window.clear(sf::Color::Black);
-        ptr_Physic->PBD(DELTA_T_S, 0.05f, 10);
+        ptr_Physic->PBD(DELTA_T_S, 0.f, 10);
         for (auto ptr_P: ptr_Cloth->LIST_particles) {
             if (ptr_P == nullptr) {
                 continue;
@@ -92,6 +94,7 @@ int main() {
             ptr_P->shape.setPosition(ptr_P->pos.x, ptr_P->pos.y);
             window.draw(ptr_P->shape);
         }
+        window.draw(rectangle);
         window.display();
     }
     return 0;
