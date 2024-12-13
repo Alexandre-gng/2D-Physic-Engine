@@ -1,4 +1,4 @@
-#include "Constraints/ClassStretchingConstraint.hpp"
+#include "../include/Constraints/ClassStretchingConstraint.hpp"
 #include "../include/ClassParticle.hpp"
 #include "../include/Objects/ClassObject.hpp"
 

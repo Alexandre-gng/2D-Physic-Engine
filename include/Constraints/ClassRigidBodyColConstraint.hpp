@@ -14,6 +14,5 @@ public:
 
     RigidBodyCollisionConstraint(int d, Object* ptr_o)
             : Constraint(ptr_o){};
-
 };
 

@@ -28,6 +28,7 @@ add_executable(Clothes
         source/Object.cpp
         include/Constraints/ClassRigidBodyColConstraint.hpp
         source/RigidBodyColConstraint.cpp
+        include/Objects/ClassWall.hpp
 )
 
 target_link_libraries(Clothes sfml-graphics)

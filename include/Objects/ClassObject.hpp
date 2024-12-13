@@ -5,7 +5,7 @@
 #include "../ClassJoint.hpp"
 #include "../ClassTriangle.hpp"
 #include "../Constraints/ClassConstraint.hpp"
-#include "Constraints/ClassStretchingConstraint.hpp"
+#include "../Constraints/ClassStretchingConstraint.hpp"
 
 
 class Triangle;
